@@ -66,6 +66,10 @@ func (r *router) handleCalibrationStart(w http.ResponseWriter, req *http.Request
 		writeNotFound(w)
 		return
 	}
+	if errors.Is(err, service.ErrInvalidState) {
+		writeErr(w, http.StatusConflict, err.Error())
+		return
+	}
 	if err != nil {
 		writeErr(w, http.StatusConflict, err.Error())
 		return
@@ -95,6 +99,10 @@ func (r *router) handleCalibrationComplete(w http.ResponseWriter, req *http.Requ
 		writeErr(w, http.StatusBadRequest, missing.Error())
 		return
 	}
+	if errors.Is(err, service.ErrInvalidState) {
+		writeErr(w, http.StatusConflict, err.Error())
+		return
+	}
 	if err != nil {
 		writeErr(w, http.StatusConflict, err.Error())
 		return
@@ -110,6 +118,10 @@ func (r *router) handleCalibrationFail(w http.ResponseWriter, req *http.Request)
 	job, err := r.Calib.Fail(id)
 	if errors.Is(err, store.ErrNotFound) {
 		writeNotFound(w)
+		return
+	}
+	if errors.Is(err, service.ErrInvalidState) {
+		writeErr(w, http.StatusConflict, err.Error())
 		return
 	}
 	if err != nil {

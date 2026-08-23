@@ -17,6 +17,9 @@ type CalibrationService struct {
 	db *store.DB
 }
 
+// ErrInvalidState marks a calibration job state-machine violation;
+var ErrInvalidState = errors.New("calibration job invalid state")
+
 func NewCalibrationService(db *store.DB) *CalibrationService {
 	return &CalibrationService{db: db}
 }
@@ -48,7 +51,7 @@ func (s *CalibrationService) Start(id int64) (*model.CalibrationJob, error) {
 		return nil, err
 	}
 	if job.State != model.CalibPending {
-		return nil, fmt.Errorf("job %d in state %s cannot start", id, job.State)
+		return nil, fmt.Errorf("job %d in state %s cannot start: %w", id, job.State, ErrInvalidState)
 	}
 	now := time.Now().UTC()
 	if err := s.db.Calibrations.MarkStarted(context.Background(), id, now); err != nil {
@@ -64,7 +67,7 @@ func (s *CalibrationService) Complete(id int64, metrics map[string]float64) (*mo
 		return nil, err
 	}
 	if job.State != model.CalibRunning {
-		return nil, fmt.Errorf("job %d in state %s cannot complete", id, job.State)
+		return nil, fmt.Errorf("job %d in state %s cannot complete: %w", id, job.State, ErrInvalidState)
 	}
 	if err := s.db.Calibrations.FinishWithResult(context.Background(), id, model.CalibSucceeded, metrics, time.Now().UTC()); err != nil {
 		return nil, err
@@ -79,7 +82,7 @@ func (s *CalibrationService) Fail(id int64) (*model.CalibrationJob, error) {
 		return nil, err
 	}
 	if job.State != model.CalibRunning {
-		return nil, fmt.Errorf("job %d in state %s cannot fail", id, job.State)
+		return nil, fmt.Errorf("job %d in state %s cannot fail: %w", id, job.State, ErrInvalidState)
 	}
 	if err := s.db.Calibrations.FinishWithResult(context.Background(), id, model.CalibFailed, nil, time.Now().UTC()); err != nil {
 		return nil, err

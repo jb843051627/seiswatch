@@ -88,6 +88,9 @@ func (s *CalibrationService) CompleteEvaluated(id int64, metrics map[string]floa
 	if err != nil {
 		return nil, err
 	}
+	if job.State != model.CalibRunning {
+		return nil, fmt.Errorf("job %d in state %s cannot complete: %w", id, job.State, ErrInvalidState)
+	}
 	missing, err := MissingRequiredMetrics(job.Kind, metrics)
 	if err != nil {
 		return nil, fmt.Errorf("evaluate job %d (%s): %w", id, job.Kind, err)
