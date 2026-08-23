@@ -2,7 +2,7 @@ FROM golang:1.22-bookworm
 
 ENV GOPROXY=https://goproxy.cn,direct
 ENV GOTOOLCHAIN=local
-ENV CGO_ENABLED=0
+ENV CGO_ENABLED=1
 
 WORKDIR /app
 
