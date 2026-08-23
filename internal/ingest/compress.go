@@ -29,7 +29,7 @@ func DeltaEncode(samples []int32) []int64 {
 // starting from the explicit first value. Accumulation happens in
 // int64; whenever the running value leaves the int32 range it is
 // clamped back into it, mirroring what a saturating ADC would have
-// produced, so decoding untrusted data cannot panic or wrap.
+// produced, so decoding the wire representation remains bounded.
 func DeltaDecode(deltas []int64, first int32) []int32 {
 	if len(deltas) == 0 {
 		return nil

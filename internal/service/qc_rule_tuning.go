@@ -81,7 +81,7 @@ func (t TunedRule) rmsDriftBelowThreshold(fc FrameContext) bool {
 }
 
 // ApplyProfile wraps every registered rule of the engine in a TunedRule
-// carrying p. Passing a nil pointer resets the engine to untuned rules by
+// carrying p. An absent profile resets the engine to untuned rules by
 // unwrapping any existing TunedRule layers first.
 func (e *QCEngine) ApplyProfile(p *ThresholdProfile) {
 	tuned := make([]Rule, 0, len(e.rules))
