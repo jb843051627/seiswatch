@@ -10,7 +10,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN go build -o seiswatch ./...
+RUN go build ./... && go build -o /app/seiswatch .
 
 EXPOSE 8080
 
