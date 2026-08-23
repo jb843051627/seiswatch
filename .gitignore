@@ -1,0 +1,24 @@
+# 本地构建/出题过程产物，禁止入库
+*.db
+*.db-shm
+*.db-wal
+seiswatch
+seiswatch.exe
+__pycache__/
+create_bugs_*.py
+*_fields*.py
+make_*_fields.py
+make_packets_*.py
+post_*_packets.py
+rebuild_*.py
+squash_*.py
+clean*.py
+docker_*.py
+run_calibration.py
+neutralize_*.py
+cases/
+_docker/
+repo/
+bugs.json
+calibrate_config.json
+*_fields.json
