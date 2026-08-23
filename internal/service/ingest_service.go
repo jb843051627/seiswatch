@@ -114,7 +114,7 @@ func (s *IngestService) processFrame(df ingest.DecodedFrame) {
 		return
 	}
 	if channel.Status != model.ChannelOpen {
-		log.Printf("ingest: skip frame for closed channel %d (%s)", channel.ID, df.ChannelCode)
+		log.Printf("ingest: channel %d unavailable (%s)", channel.ID, df.ChannelCode)
 		return
 	}
 	history, err := s.db.Frames.RecentByChannel(ctx, channel.ID, 1)
