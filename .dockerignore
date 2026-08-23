@@ -1,0 +1,9 @@
+.git/
+*.db
+*.db-shm
+*.db-wal
+_docker/
+cases/
+__pycache__/
+*.md
+!BENZHI_README.md
