@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"seiswatch/internal/model"
+	"seiswatch/internal/service"
 	"seiswatch/internal/store"
 )
 
@@ -84,9 +85,14 @@ func (r *router) handleCalibrationComplete(w http.ResponseWriter, req *http.Requ
 		writeErr(w, http.StatusBadRequest, "invalid json")
 		return
 	}
-	job, err := r.Calib.Complete(id, body.Metrics)
+	job, err := r.Calib.CompleteEvaluated(id, body.Metrics)
 	if errors.Is(err, store.ErrNotFound) {
 		writeNotFound(w)
+		return
+	}
+	var missing service.ErrMissingRequiredMetrics
+	if errors.As(err, &missing) {
+		writeErr(w, http.StatusBadRequest, missing.Error())
 		return
 	}
 	if err != nil {

@@ -162,7 +162,9 @@ FROM channels WHERE station_id = ? AND status = ? ORDER BY code`, stationID, mod
 }
 
 // Find resolves a single channel by station and code with ErrNotFound
-// semantics preserved for callers.
+// semantics preserved for callers. Callers must verify the returned
+// channel's Status themselves; Find intentionally does not filter so
+// admin views can still look up closed channels.
 func (s *ChannelService) Find(stationID int64, code string) (*model.Channel, error) {
 	return s.db.Channels.FindByCode(context.Background(), stationID, code)
 }

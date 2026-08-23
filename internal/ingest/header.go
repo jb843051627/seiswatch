@@ -30,6 +30,13 @@ type Header struct {
 // a real frame carries.
 const maxSampleCount = 1 << 24
 
+func validateSampleRate(rate float64) error {
+	if math.IsNaN(rate) || math.IsInf(rate, 0) || rate <= 0 {
+		return fmt.Errorf("invalid sample rate %g, want > 0", rate)
+	}
+	return nil
+}
+
 // ParseHeader validates and decodes the fixed-size header at the start
 // of payload. It checks the magic bytes, the minimum length and that
 // the sample rate is a positive finite number. Payload may be longer
@@ -49,8 +56,8 @@ func ParseHeader(payload []byte) (Header, error) {
 		SampleRate:  math.Float64frombits(binary.BigEndian.Uint64(payload[24:32])),
 		SampleCount: int(binary.BigEndian.Uint32(payload[32:36])),
 	}
-	if math.IsNaN(h.SampleRate) || math.IsInf(h.SampleRate, 0) || h.SampleRate <= 0 {
-		return Header{}, fmt.Errorf("invalid sample rate %g, want > 0", h.SampleRate)
+	if err := validateSampleRate(h.SampleRate); err != nil {
+		return Header{}, err
 	}
 	if h.SampleCount > maxSampleCount {
 		return Header{}, fmt.Errorf("sample count %d exceeds limit %d", h.SampleCount, maxSampleCount)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"strings"
 	"time"
 
 	"seiswatch/internal/model"
@@ -70,6 +71,14 @@ func evaluateGainCheck(m map[string]float64) (bool, []string) {
 	return len(factors) == 0, factors
 }
 
+// ErrMissingRequiredMetrics reports a completion attempt whose metric set
+// lacks mandatory keys; handlers map it to HTTP 400.
+type ErrMissingRequiredMetrics struct{ Missing []string }
+
+func (e ErrMissingRequiredMetrics) Error() string {
+	return "missing required metrics: " + strings.Join(e.Missing, ", ")
+}
+
 // CompleteEvaluated evaluates the submitted metrics first, then finishes
 // the running job as succeeded or failed accordingly. The failing factor
 // list is stored back into result_metrics under synthetic keys so auditors
@@ -78,6 +87,13 @@ func (s *CalibrationService) CompleteEvaluated(id int64, metrics map[string]floa
 	job, err := s.get(id)
 	if err != nil {
 		return nil, err
+	}
+	missing, err := MissingRequiredMetrics(job.Kind, metrics)
+	if err != nil {
+		return nil, fmt.Errorf("evaluate job %d (%s): %w", id, job.Kind, err)
+	}
+	if len(missing) > 0 {
+		return nil, ErrMissingRequiredMetrics{Missing: missing}
 	}
 	pass, factors, err := EvaluateCalibMetrics(job.Kind, metrics)
 	if err != nil {

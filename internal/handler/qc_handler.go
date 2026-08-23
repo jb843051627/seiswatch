@@ -68,8 +68,13 @@ func (r *router) transitionQCEvent(w http.ResponseWriter, req *http.Request, all
 		writeErr(w, http.StatusConflict, "invalid state")
 		return
 	}
-	if err := r.DB.QCEvents.UpdateStatus(req.Context(), id, next); err != nil {
+	updated, err := r.DB.QCEvents.UpdateStatus(req.Context(), id, ev.Status, next)
+	if err != nil {
 		writeErr(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if !updated {
+		writeErr(w, http.StatusConflict, "event state changed concurrently")
 		return
 	}
 	ev.Status = next

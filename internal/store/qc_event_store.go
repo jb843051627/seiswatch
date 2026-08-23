@@ -87,26 +87,23 @@ func (s *QCEventStore) ListByStation(ctx context.Context, stationID int64, limit
 	return out, rows.Err()
 }
 
-func (s *QCEventStore) UpdateStatus(ctx context.Context, id int64, status model.QCStatus) error {
+func (s *QCEventStore) UpdateStatus(ctx context.Context, id int64, expected model.QCStatus, status model.QCStatus) (bool, error) {
 	now := time.Now().UTC()
 	var res sql.Result
 	var err error
 	if status == model.QCResolved {
 		res, err = s.db.ExecContext(ctx,
-			`UPDATE qc_events SET status = ?, resolved_at = ? WHERE id = ?`, status, now, id)
+			`UPDATE qc_events SET status = ?, resolved_at = ? WHERE id = ? AND status = ?`, status, now, id, expected)
 	} else {
 		res, err = s.db.ExecContext(ctx,
-			`UPDATE qc_events SET status = ? WHERE id = ?`, status, id)
+			`UPDATE qc_events SET status = ? WHERE id = ? AND status = ?`, status, id, expected)
 	}
 	if err != nil {
-		return err
+		return false, err
 	}
 	n, err := res.RowsAffected()
 	if err != nil {
-		return err
+		return false, err
 	}
-	if n == 0 {
-		return ErrNotFound
-	}
-	return nil
+	return n > 0, nil
 }
