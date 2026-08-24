@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SeisWatch 台网质控</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="topbar">
+  <h1>SeisWatch 台网质控</h1>
+  <span id="refresh-hint" class="hint">每 5 秒自动刷新</span>
+</header>
+<main class="layout">
+  <section class="card" id="stations-section">
+    <h2>台站列表</h2>
+    <table>
+      <thead>
+        <tr><th>编号</th><th>名称</th><th>区域</th><th>状态</th><th>健康分</th></tr>
+      </thead>
+      <tbody id="stations-body"></tbody>
+    </table>
+  </section>
+  <section class="card" id="qc-section">
+    <h2>质控事件</h2>
+    <table>
+      <thead>
+        <tr><th>规则</th><th>级别</th><th>状态</th><th>详情</th><th>操作</th></tr>
+      </thead>
+      <tbody id="qc-body"></tbody>
+    </table>
+  </section>
+  <section class="card" id="calib-section">
+    <h2>校准作业</h2>
+    <table>
+      <thead>
+        <tr><th>类型</th><th>计划时间</th><th>状态</th></tr>
+      </thead>
+      <tbody id="calib-body"></tbody>
+    </table>
+  </section>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>
