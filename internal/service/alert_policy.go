@@ -32,7 +32,9 @@ var defaultPolicy = AlertPolicy{
 	MaxPerHour:   60,
 }
 
-// SetAlertPolicy swaps the package-wide escalation policy.
+// SetAlertPolicy swaps the package-wide escalation policy. It is safe for
+// concurrent use: callers may hot-swap the policy at runtime while ingest
+// goroutines read it via CurrentAlertPolicy.
 func SetAlertPolicy(p AlertPolicy) {
 	if p.DedupeWindow < 0 {
 		p.DedupeWindow = 0
@@ -40,11 +42,17 @@ func SetAlertPolicy(p AlertPolicy) {
 	if p.MaxPerHour < 0 {
 		p.MaxPerHour = 0
 	}
+	policyMu.Lock()
+	defer policyMu.Unlock()
 	defaultPolicy = p
 }
 
-// CurrentAlertPolicy returns a copy of the active policy.
+// CurrentAlertPolicy returns a consistent snapshot copy of the active
+// policy. The copy is taken under the read lock so a concurrent
+// SetAlertPolicy cannot produce a torn (partially-overwritten) struct.
 func CurrentAlertPolicy() AlertPolicy {
+	policyMu.RLock()
+	defer policyMu.RUnlock()
 	return defaultPolicy
 }
 
